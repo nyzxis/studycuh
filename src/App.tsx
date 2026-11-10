@@ -46,7 +46,7 @@ function PortalWorkspace() {
     setActiveSubjectId(null);
     setActiveChapterId(null);
     if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo(0, 0);
     }
   }, []);
 
@@ -54,7 +54,7 @@ function PortalWorkspace() {
     setActiveSubjectId(subjectId);
     setActiveChapterId(null);
     if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo(0, 0);
     }
   }, []);
 
@@ -65,7 +65,7 @@ function PortalWorkspace() {
       setActiveLessonTab(initialTab);
       setLastVisitedChapter(chapterId);
       if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo(0, 0);
       }
     },
     [setLastVisitedChapter]
@@ -124,6 +124,7 @@ function PortalWorkspace() {
           activeSubject={activeSubject}
           activeChapter={activeChapter}
           activeLessonTab={activeLessonTab}
+          theme={state.theme}
           cramModeEnabled={state.cramModeEnabled}
           highlightKeywordsEnabled={state.highlightKeywordsEnabled}
           sidebarCollapsed={sidebarCollapsed}
@@ -134,6 +135,7 @@ function PortalWorkspace() {
             activeChapter ? state.bookmarkedChapters.includes(activeChapter.id) : false
           }
           onChangeLessonTab={setActiveLessonTab}
+          onToggleTheme={toggleTheme}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
           onToggleSidebarCollapse={() => setSidebarCollapsed((prev) => !prev)}
           onOpenSearch={() => setSearchOpen(true)}

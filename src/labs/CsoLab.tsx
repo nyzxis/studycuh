@@ -294,13 +294,13 @@ export function CsoLab() {
                 animate={{ pathLength: 1, opacity: 1 }}
                 transition={{ duration: motionTokens.duration.slow, ease: motionTokens.easing.smooth }}
               />
-              <rect x="110" y="12" width="30" height="24" rx="4" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
-              <text x="125" y="28" textAnchor="middle" fontSize="10" fontFamily="monospace">NOT</text>
-              <rect x="180" y="18" width="50" height="40" rx="6" fill="#E1F3FE" stroke="#1F6C9F" strokeWidth="1.5" />
-              <text x="205" y="42" textAnchor="middle" fontSize="11" fontWeight="bold" fontFamily="monospace">AND</text>
-              <rect x="290" y="34" width="50" height="48" rx="6" fill="#EDF3EC" stroke="#346538" strokeWidth="1.5" />
-              <text x="315" y="62" textAnchor="middle" fontSize="11" fontWeight="bold" fontFamily="monospace">OR</text>
-              <text x="440" y="62" fontSize="12" fontWeight="bold" fontFamily="monospace" fill="#111111">
+              <rect x="110" y="12" width="30" height="24" rx="4" fill="var(--surface-primary)" stroke="var(--ink-primary)" strokeWidth="1.5" />
+              <text x="125" y="28" textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--ink-primary)">NOT</text>
+              <rect x="180" y="18" width="50" height="40" rx="6" fill="var(--pastel-blue-bg)" stroke="var(--pastel-blue-text)" strokeWidth="1.5" />
+              <text x="205" y="42" textAnchor="middle" fontSize="11" fontWeight="bold" fontFamily="monospace" fill="var(--pastel-blue-text)">AND</text>
+              <rect x="290" y="34" width="50" height="48" rx="6" fill="var(--pastel-green-bg)" stroke="var(--pastel-green-text)" strokeWidth="1.5" />
+              <text x="315" y="62" textAnchor="middle" fontSize="11" fontWeight="bold" fontFamily="monospace" fill="var(--pastel-green-text)">OR</text>
+              <text x="440" y="62" fontSize="12" fontWeight="bold" fontFamily="monospace" fill="var(--ink-primary)">
                 {booleanPreset === 'slide38' ? "F = A'B + C" : booleanPreset === 'demorgan' ? "F = (AB)'" : 'S = A ⊕ B'}
               </text>
             </svg>

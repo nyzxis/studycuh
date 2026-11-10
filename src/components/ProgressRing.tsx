@@ -14,7 +14,7 @@ export function ProgressRing({
   progress,
   size = 64,
   strokeWidth = 6,
-  strokeColor = '#111111',
+  strokeColor = 'var(--ink-primary)',
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -38,7 +38,7 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#EAEAEA"
+          stroke="var(--border-subtle)"
           strokeWidth={strokeWidth}
         />
         <motion.circle

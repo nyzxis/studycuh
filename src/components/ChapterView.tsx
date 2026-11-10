@@ -1,10 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { useState } from 'react';
 import type { Chapter, Subject, SubjectId, TurboLessonTab } from '@/types/course';
-import { useSafeMotion } from '@/hooks/use-reduced-motion';
-import { springs, motionTokens } from '@/lib/motion-tokens';
 import { KeywordText } from '@/components/KeywordText';
 import { FormulaBlock } from '@/components/FormulaBlock';
 import { DualViewAlert } from '@/components/DualViewAlert';
@@ -72,12 +69,6 @@ export function ChapterView({
 }: ChapterViewProps) {
   const [scratchpadOpen, setScratchpadOpen] = useState(false);
   const [keywordsExpanded, setKeywordsExpanded] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const safeMotion = useSafeMotion(motionTokens.distance.sm);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const currentIdx = subject.chapters.findIndex((c) => c.id === chapter.id);
   const prevChapter = currentIdx > 0 ? subject.chapters[currentIdx - 1] : null;
@@ -115,11 +106,7 @@ export function ChapterView({
   };
 
   return (
-    <motion.div
-      key={chapter.id}
-      initial={mounted ? safeMotion.initial : { opacity: 1, y: 0 }}
-      animate={safeMotion.animate}
-      transition={springs.gentle}
+    <div
       className={`reader-container ${cramModeEnabled ? 'cram-mode-active' : ''}`}
       data-testid="chapter-view"
     >
@@ -940,6 +927,6 @@ export function ChapterView({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -46,7 +46,7 @@ export function DualViewAlert({ alert }: { readonly alert: DualViewAlertType }) 
       </div>
 
       <div className="dual-view-grid">
-        <div className="dual-view-pane" style={{ backgroundColor: '#FDFCFB' }}>
+        <div className="dual-view-pane">
           <div
             style={{
               fontSize: '0.73rem',
@@ -64,7 +64,7 @@ export function DualViewAlert({ alert }: { readonly alert: DualViewAlertType }) 
           </p>
         </div>
 
-        <div className="dual-view-pane" style={{ backgroundColor: '#FAFDF9' }}>
+        <div className="dual-view-pane">
           <div
             style={{
               fontSize: '0.73rem',

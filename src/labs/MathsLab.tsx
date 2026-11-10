@@ -274,18 +274,18 @@ export function MathsLab() {
                 animate={{ pathLength: 1 }}
                 transition={{ duration: motionTokens.duration.slow, ease: motionTokens.easing.smooth }}
               />
-              <circle cx="40" cy="55" r="14" fill="#F3EFFE" stroke="#5B3E96" strokeWidth="1.8" />
-              <text x="40" y="59" textAnchor="middle" fontSize="11" fontWeight="bold">A(3)</text>
-              <circle cx="150" cy="25" r="14" fill="#F3EFFE" stroke="#5B3E96" strokeWidth="1.8" />
-              <text x="150" y="29" textAnchor="middle" fontSize="11" fontWeight="bold">B(2)</text>
-              <circle cx="310" cy="25" r="14" fill="#F3EFFE" stroke="#5B3E96" strokeWidth="1.8" />
-              <text x="310" y="29" textAnchor="middle" fontSize="11" fontWeight="bold">D(5)</text>
-              <circle cx="150" cy="85" r="14" fill="#F3EFFE" stroke="#5B3E96" strokeWidth="1.8" />
-              <text x="150" y="89" textAnchor="middle" fontSize="11" fontWeight="bold">C(4)</text>
-              <circle cx="310" cy="85" r="14" fill="#F3EFFE" stroke="#5B3E96" strokeWidth="1.8" />
-              <text x="310" y="89" textAnchor="middle" fontSize="11" fontWeight="bold">E(3)</text>
-              <circle cx="430" cy="55" r="14" fill="#EDF3EC" stroke="#346538" strokeWidth="1.8" />
-              <text x="430" y="59" textAnchor="middle" fontSize="11" fontWeight="bold">F(2)</text>
+              <circle cx="40" cy="55" r="14" fill="var(--pastel-lavender-bg)" stroke="var(--pastel-lavender-text)" strokeWidth="1.8" />
+              <text x="40" y="59" textAnchor="middle" fontSize="11" fontWeight="bold" fill="var(--pastel-lavender-text)">A(3)</text>
+              <circle cx="150" cy="25" r="14" fill="var(--pastel-lavender-bg)" stroke="var(--pastel-lavender-text)" strokeWidth="1.8" />
+              <text x="150" y="29" textAnchor="middle" fontSize="11" fontWeight="bold" fill="var(--pastel-lavender-text)">B(2)</text>
+              <circle cx="310" cy="25" r="14" fill="var(--pastel-lavender-bg)" stroke="var(--pastel-lavender-text)" strokeWidth="1.8" />
+              <text x="310" y="29" textAnchor="middle" fontSize="11" fontWeight="bold" fill="var(--pastel-lavender-text)">D(5)</text>
+              <circle cx="150" cy="85" r="14" fill="var(--pastel-lavender-bg)" stroke="var(--pastel-lavender-text)" strokeWidth="1.8" />
+              <text x="150" y="89" textAnchor="middle" fontSize="11" fontWeight="bold" fill="var(--pastel-lavender-text)">C(4)</text>
+              <circle cx="310" cy="85" r="14" fill="var(--pastel-lavender-bg)" stroke="var(--pastel-lavender-text)" strokeWidth="1.8" />
+              <text x="310" y="89" textAnchor="middle" fontSize="11" fontWeight="bold" fill="var(--pastel-lavender-text)">E(3)</text>
+              <circle cx="430" cy="55" r="14" fill="var(--pastel-green-bg)" stroke="var(--pastel-green-text)" strokeWidth="1.8" />
+              <text x="430" y="59" textAnchor="middle" fontSize="11" fontWeight="bold" fill="var(--pastel-green-text)">F(2)</text>
             </svg>
           </div>
 

@@ -50,7 +50,7 @@ export function ShimmerSkeleton({
         overflow: 'hidden',
         height,
         width,
-        backgroundColor: '#EAE8E3',
+        backgroundColor: 'var(--surface-secondary)',
         borderRadius: 'var(--radius-sm)',
       }}
       data-testid="shimmer-skeleton"
@@ -61,7 +61,8 @@ export function ShimmerSkeleton({
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          backgroundColor: 'var(--border-subtle)',
+          opacity: 0.45,
         }}
       />
     </div>

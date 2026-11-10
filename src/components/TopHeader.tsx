@@ -1,8 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
-import type { Chapter, Subject, TurboLessonTab } from '@/types/course';
-import { springs } from '@/lib/motion-tokens';
+import type { Chapter, Subject, ThemeMode, TurboLessonTab } from '@/types/course';
 import {
   IconMenu,
   IconSearch,
@@ -13,18 +11,22 @@ import {
   IconBook,
   IconCards,
   IconLab,
+  IconSun,
+  IconMoon,
 } from '@/components/Icons';
 
 interface TopHeaderProps {
   readonly activeSubject: Subject | null;
   readonly activeChapter: Chapter | null;
   readonly activeLessonTab: TurboLessonTab;
+  readonly theme: ThemeMode;
   readonly cramModeEnabled: boolean;
   readonly highlightKeywordsEnabled: boolean;
   readonly sidebarCollapsed: boolean;
   readonly isChapterCompleted: boolean;
   readonly isChapterBookmarked: boolean;
   readonly onChangeLessonTab: (tab: TurboLessonTab) => void;
+  readonly onToggleTheme: () => void;
   readonly onOpenMobileMenu: () => void;
   readonly onToggleSidebarCollapse: () => void;
   readonly onOpenSearch: () => void;
@@ -51,12 +53,14 @@ export function TopHeader({
   activeSubject,
   activeChapter,
   activeLessonTab,
+  theme,
   cramModeEnabled,
   highlightKeywordsEnabled,
   sidebarCollapsed,
   isChapterCompleted,
   isChapterBookmarked,
   onChangeLessonTab,
+  onToggleTheme,
   onOpenMobileMenu,
   onToggleSidebarCollapse,
   onOpenSearch,
@@ -160,7 +164,7 @@ export function TopHeader({
         </nav>
       </div>
 
-      {/* Center: Turbo AI 4-Tab Segmented Pill Switcher (Only when inside a Chapter) */}
+      {/* Center: Turbo AI 4-Tab Segmented Pill Switcher (Zero-jitter CSS active pill) */}
       {activeChapter && (
         <div
           className="turbo-segmented-bar"
@@ -180,13 +184,6 @@ export function TopHeader({
                 onClick={() => onChangeLessonTab(t.id)}
                 data-testid={t.testId}
               >
-                {isActive && (
-                  <motion.span
-                    layoutId="turbo-lesson-tab-pill"
-                    className="turbo-segmented-pill"
-                    transition={springs.snappy}
-                  />
-                )}
                 {t.id === 'notes' && <IconBook size={13} />}
                 {t.id === 'flashcards' && <IconCards size={13} />}
                 {t.id === 'quiz' && <IconCheck size={13} />}
@@ -198,7 +195,7 @@ export function TopHeader({
         </div>
       )}
 
-      {/* Right: Compact Studio Action Pills */}
+      {/* Right: Compact Studio Action Pills (Includes Prominent Dark Mode Toggle) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
         <button
           type="button"
@@ -231,6 +228,27 @@ export function TopHeader({
         >
           <IconSpark size={13} />
           <span>Cram</span>
+        </button>
+
+        <button
+          type="button"
+          className="btn-icon-pill"
+          onClick={onToggleTheme}
+          data-testid="topbar-theme-btn"
+          aria-label={theme === 'dark' ? 'Switch to Light mode' : 'Switch to Dark mode'}
+          title={theme === 'dark' ? 'Switch to Light mode' : 'Switch to Dark mode'}
+        >
+          {theme === 'dark' ? (
+            <>
+              <IconSun size={13} />
+              <span className="hide-on-mobile">Light</span>
+            </>
+          ) : (
+            <>
+              <IconMoon size={13} />
+              <span className="hide-on-mobile">Dark</span>
+            </>
+          )}
         </button>
 
         {activeChapter && onToggleBookmark && (
