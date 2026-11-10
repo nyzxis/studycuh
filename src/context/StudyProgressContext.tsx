@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 import type { QuizAttempt, ThemeMode, UserStudyState } from '@/types/course';
 
 const STORAGE_KEY = 'unitar_sem3_study_state_v1';
@@ -39,7 +40,7 @@ interface StudyProgressContextValue {
   readonly toggleCramMode: () => void;
   readonly toggleHighlightKeywords: () => void;
   readonly setLastVisitedChapter: (chapterId: string) => void;
-  readonly toggleTheme: () => void;
+  readonly toggleTheme: (event?: React.MouseEvent<HTMLElement>) => void;
   readonly setTheme: (theme: ThemeMode) => void;
   readonly exportStateJson: () => string;
   readonly importStateJson: (rawJson: string) => { readonly ok: boolean; readonly error?: string };
@@ -258,12 +259,82 @@ export function StudyProgressProvider({ children }: { readonly children: React.R
     });
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      theme: prev.theme === 'light' ? 'dark' : 'light',
-    }));
-  }, []);
+  const toggleTheme = useCallback((event?: React.MouseEvent<HTMLElement>) => {
+    const nextTheme: ThemeMode = state.theme === 'light' ? 'dark' : 'light';
+
+    const applyThemeChange = () => {
+      if (typeof document !== 'undefined') {
+        document.documentElement.setAttribute('data-theme', nextTheme);
+      }
+      flushSync(() => {
+        setState((prev) => ({
+          ...prev,
+          theme: nextTheme,
+        }));
+      });
+    };
+
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      setState((prev) => ({ ...prev, theme: nextTheme }));
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const docWithTransition = document as Document & {
+      startViewTransition?: (callback: () => void) => {
+        readonly ready: Promise<void>;
+      };
+    };
+
+    if (!docWithTransition.startViewTransition || prefersReducedMotion) {
+      applyThemeChange();
+      return;
+    }
+
+    // Compute origin coordinates of the expanding circle from the clicked button
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+
+    if (event) {
+      if (event.clientX > 0 || event.clientY > 0) {
+        x = event.clientX;
+        y = event.clientY;
+      } else if (event.currentTarget) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        x = rect.left + rect.width / 2;
+        y = rect.top + rect.height / 2;
+      }
+    }
+
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = docWithTransition.startViewTransition(() => {
+      applyThemeChange();
+    });
+
+    void transition.ready
+      .then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${endRadius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 520,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            pseudoElement: '::view-transition-new(root)',
+          }
+        );
+      })
+      .catch(() => {
+        // Ignore if transition was interrupted
+      });
+  }, [state.theme]);
 
   const setTheme = useCallback((theme: ThemeMode) => {
     setState((prev) => ({ ...prev, theme }));

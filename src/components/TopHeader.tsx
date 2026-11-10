@@ -26,7 +26,7 @@ interface TopHeaderProps {
   readonly isChapterCompleted: boolean;
   readonly isChapterBookmarked: boolean;
   readonly onChangeLessonTab: (tab: TurboLessonTab) => void;
-  readonly onToggleTheme: () => void;
+  readonly onToggleTheme: (event: React.MouseEvent<HTMLButtonElement>) => void;
   readonly onOpenMobileMenu: () => void;
   readonly onToggleSidebarCollapse: () => void;
   readonly onOpenSearch: () => void;
@@ -233,7 +233,7 @@ export function TopHeader({
         <button
           type="button"
           className="btn-icon-pill"
-          onClick={onToggleTheme}
+          onClick={(e) => onToggleTheme(e)}
           data-testid="topbar-theme-btn"
           aria-label={theme === 'dark' ? 'Switch to Light mode' : 'Switch to Dark mode'}
           title={theme === 'dark' ? 'Switch to Light mode' : 'Switch to Dark mode'}

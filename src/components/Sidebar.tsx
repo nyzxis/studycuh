@@ -25,7 +25,7 @@ interface SidebarProps {
   readonly mobileOpen: boolean;
   readonly onCloseMobile: () => void;
   readonly onOpenSearch: () => void;
-  readonly onToggleTheme: () => void;
+  readonly onToggleTheme: (event: React.MouseEvent<HTMLButtonElement>) => void;
   readonly onSelectDashboard: () => void;
   readonly onSelectSubject: (subjectId: SubjectId) => void;
   readonly onSelectChapter: (subjectId: SubjectId, chapterId: string) => void;
@@ -395,7 +395,7 @@ export function Sidebar({
           <button
             type="button"
             className="btn-icon-pill"
-            onClick={onToggleTheme}
+            onClick={(e) => onToggleTheme(e)}
             aria-label={theme === 'dark' ? 'Switch to Studio Light mode' : 'Switch to Night mode'}
             data-testid="toggle-theme-btn"
           >
