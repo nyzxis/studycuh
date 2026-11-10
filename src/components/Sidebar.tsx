@@ -1,10 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import type { Subject, SubjectId } from '@/types/course';
+import { useState, useEffect } from 'react';
+import type { Subject, SubjectId, ThemeMode } from '@/types/course';
 import { ProgressRing } from '@/components/ProgressRing';
-import { StudyPulse } from '@/components/StudyPulse';
-import { IconCheck, IconGrid, IconPlus, IconMinus, IconBookmark } from '@/components/Icons';
+import {
+  IconCheck,
+  IconGrid,
+  IconBookmark,
+  IconFolder,
+  IconSearch,
+  IconSun,
+  IconMoon,
+  IconChevronRight,
+  IconChevronDown,
+} from '@/components/Icons';
 
 interface SidebarProps {
   readonly subjects: readonly Subject[];
@@ -12,8 +21,11 @@ interface SidebarProps {
   readonly activeChapterId: string | null;
   readonly completedChapters: readonly string[];
   readonly bookmarkedChapters: readonly string[];
+  readonly theme: ThemeMode;
   readonly mobileOpen: boolean;
   readonly onCloseMobile: () => void;
+  readonly onOpenSearch: () => void;
+  readonly onToggleTheme: () => void;
   readonly onSelectDashboard: () => void;
   readonly onSelectSubject: (subjectId: SubjectId) => void;
   readonly onSelectChapter: (subjectId: SubjectId, chapterId: string) => void;
@@ -25,29 +37,37 @@ export function Sidebar({
   activeChapterId,
   completedChapters,
   bookmarkedChapters,
+  theme,
   mobileOpen,
   onCloseMobile,
+  onOpenSearch,
+  onToggleTheme,
   onSelectDashboard,
   onSelectSubject,
   onSelectChapter,
 }: SidebarProps) {
-  const [expandedSubjects, setExpandedSubjects] = useState<Readonly<Record<SubjectId, boolean>>>({
-    business: true,
-    cso: true,
-    database: true,
-    english: true,
-    maths: true,
-  });
+  // Only expand the currently active subject folder by default so we never dump 48 chapters at once
+  const [openFolderId, setOpenFolderId] = useState<SubjectId | null>(activeSubjectId);
+
+  useEffect(() => {
+    if (activeSubjectId) {
+      setOpenFolderId(activeSubjectId);
+    }
+  }, [activeSubjectId]);
 
   const totalChapters = subjects.reduce((sum, s) => sum + s.chapters.length, 0);
   const completedCount = completedChapters.length;
   const overallPct = totalChapters > 0 ? (completedCount / totalChapters) * 100 : 0;
 
-  const toggleExpand = (subjectId: SubjectId) => {
-    setExpandedSubjects((prev) => ({
-      ...prev,
-      [subjectId]: !prev[subjectId],
-    }));
+  const handleFolderClick = (subjectId: SubjectId) => {
+    setOpenFolderId((prev) => (prev === subjectId && activeSubjectId === subjectId ? null : subjectId));
+    onSelectSubject(subjectId);
+    onCloseMobile();
+  };
+
+  const handleToggleChevron = (e: React.MouseEvent, subjectId: SubjectId) => {
+    e.stopPropagation();
+    setOpenFolderId((prev) => (prev === subjectId ? null : subjectId));
   };
 
   return (
@@ -62,10 +82,10 @@ export function Sidebar({
         aria-label="Coursework Navigation"
         data-testid="portal-sidebar"
       >
-        {/* Brand Header */}
+        {/* Top Studio Brand & Quick Search */}
         <div
           style={{
-            padding: '20px 18px 16px',
+            padding: '18px 16px 14px',
             borderBottom: '1px solid var(--border-subtle)',
           }}
         >
@@ -75,111 +95,173 @@ export function Sidebar({
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '10px',
+              marginBottom: '14px',
             }}
           >
             <div>
               <div
                 className="tabular-mono"
                 style={{
-                  fontSize: '0.7rem',
+                  fontSize: '0.68rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   color: 'var(--ink-muted)',
                 }}
               >
-                UNITAR Foundation in IT
+                UNITAR • Sem 3
               </div>
-              <h2 style={{ fontSize: '1.2rem', margin: '2px 0 4px' }}>
-                Semester 3 Portal
+              <h2 style={{ fontSize: '1.15rem', margin: '2px 0 0' }}>
+                Study Studio
               </h2>
-              <StudyPulse label="5 Subjects • 48 Chapters" />
             </div>
-            <ProgressRing progress={overallPct} size={50} strokeWidth={5} />
+            <ProgressRing progress={overallPct} size={42} strokeWidth={4.5} />
           </div>
 
+          {/* Quick Search Trigger in Sidebar */}
           <button
             type="button"
-            className={`btn-secondary ${activeSubjectId === null ? 'active' : ''}`}
-            style={{ width: '100%', marginTop: '14px', justifyContent: 'flex-start' }}
+            onClick={() => {
+              onCloseMobile();
+              onOpenSearch();
+            }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '8px 11px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-subtle)',
+              backgroundColor: 'var(--surface-primary)',
+              color: 'var(--ink-muted)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              marginBottom: '8px',
+            }}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <IconSearch size={14} />
+              <span>Quick search...</span>
+            </span>
+            <kbd>Ctrl K</kbd>
+          </button>
+
+          {/* Home Launcher */}
+          <button
+            type="button"
             onClick={() => {
               onSelectDashboard();
               onCloseMobile();
             }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '9px',
+              padding: '8px 11px',
+              borderRadius: 'var(--radius-sm)',
+              border:
+                activeSubjectId === null
+                  ? '1px solid var(--border-strong)'
+                  : '1px solid transparent',
+              backgroundColor:
+                activeSubjectId === null ? 'var(--surface-primary)' : 'transparent',
+              color: activeSubjectId === null ? 'var(--ink-primary)' : 'var(--ink-body)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.83rem',
+              fontWeight: activeSubjectId === null ? 600 : 500,
+              cursor: 'pointer',
+            }}
             data-testid="nav-dashboard-btn"
           >
             <IconGrid size={15} />
-            <span>All Subjects Overview</span>
+            <span>Home Workspace</span>
           </button>
         </div>
 
-        {/* Subject & Chapter Tree */}
-        <nav style={{ padding: '12px 10px 28px', flex: 1 }}>
+        {/* 5 Course Folders (Single-Accordion so it stays clean like Turbo AI) */}
+        <div
+          style={{
+            padding: '14px 12px 6px',
+            fontSize: '0.68rem',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--ink-muted)',
+          }}
+        >
+          Course Folders ({subjects.length})
+        </div>
+
+        <nav style={{ padding: '0 10px 20px', flex: 1, overflowY: 'auto' }}>
           {subjects.map((subj) => {
-            const isExpanded = expandedSubjects[subj.id];
+            const isExpanded = openFolderId === subj.id;
+            const isSubjectSelected = activeSubjectId === subj.id;
             const subjCompleted = subj.chapters.filter((c) =>
               completedChapters.includes(c.id)
             ).length;
 
             return (
-              <div
-                key={subj.id}
-                style={{
-                  marginBottom: '10px',
-                  borderBottom: '1px solid var(--border-subtle)',
-                  paddingBottom: '8px',
-                }}
-              >
+              <div key={subj.id} style={{ marginBottom: '4px' }}>
                 <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '6px',
+                    gap: '4px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: isSubjectSelected
+                      ? 'var(--surface-primary)'
+                      : 'transparent',
+                    border: isSubjectSelected
+                      ? '1px solid var(--border-subtle)'
+                      : '1px solid transparent',
                   }}
                 >
                   <button
                     type="button"
-                    onClick={() => {
-                      onSelectSubject(subj.id);
-                      onCloseMobile();
-                    }}
+                    onClick={() => handleFolderClick(subj.id)}
                     style={{
                       flex: 1,
+                      minWidth: 0,
                       textAlign: 'left',
                       background: 'none',
                       border: 'none',
-                      padding: '8px',
-                      borderRadius: 'var(--radius-sm)',
+                      padding: '8px 10px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      backgroundColor:
-                        activeSubjectId === subj.id && activeChapterId === null
-                          ? 'var(--surface-primary)'
-                          : 'transparent',
+                      gap: '8px',
                     }}
                     data-testid={`nav-subject-${subj.id}`}
                   >
-                    <div>
-                      <span className={`pastel-badge pastel-${subj.pastel}`}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                      <span
+                        className={`pastel-badge pastel-${subj.pastel}`}
+                        style={{ padding: '2px 7px', fontSize: '0.66rem' }}
+                      >
+                        <IconFolder size={11} />
                         {subj.code}
                       </span>
-                      <div
+                      <span
                         style={{
-                          fontSize: '0.86rem',
-                          fontWeight: 600,
+                          fontSize: '0.83rem',
+                          fontWeight: isSubjectSelected ? 600 : 500,
                           color: 'var(--ink-primary)',
-                          marginTop: '4px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
                         }}
                       >
                         {subj.shortName}
-                      </div>
+                      </span>
                     </div>
+
                     <span
                       className="tabular-mono"
-                      style={{ fontSize: '0.73rem', color: 'var(--ink-muted)' }}
+                      style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', flexShrink: 0 }}
                     >
                       {subjCompleted}/{subj.chapters.length}
                     </span>
@@ -188,22 +270,24 @@ export function Sidebar({
                   <button
                     type="button"
                     aria-expanded={isExpanded}
-                    aria-label={`Toggle ${subj.shortName} chapters`}
-                    onClick={() => toggleExpand(subj.id)}
+                    aria-label={`Toggle ${subj.shortName} lessons`}
+                    onClick={(e) => handleToggleChevron(e, subj.id)}
                     style={{
-                      width: '32px',
-                      height: '32px',
+                      width: '28px',
+                      height: '28px',
+                      marginRight: '4px',
                       background: 'none',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 'var(--radius-sm)',
+                      border: 'none',
+                      borderRadius: '6px',
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'var(--ink-muted)',
+                      flexShrink: 0,
                     }}
                   >
-                    {isExpanded ? <IconMinus size={13} /> : <IconPlus size={13} />}
+                    {isExpanded ? <IconChevronDown size={13} /> : <IconChevronRight size={13} />}
                   </button>
                 </div>
 
@@ -214,7 +298,10 @@ export function Sidebar({
                       flexDirection: 'column',
                       gap: '2px',
                       marginTop: '4px',
-                      paddingLeft: '6px',
+                      marginBottom: '8px',
+                      paddingLeft: '12px',
+                      borderLeft: '1px solid var(--border-subtle)',
+                      marginLeft: '14px',
                     }}
                   >
                     {subj.chapters.map((ch) => {
@@ -232,17 +319,15 @@ export function Sidebar({
                           }}
                           style={{
                             textAlign: 'left',
-                            padding: '7px 10px',
-                            borderRadius: 'var(--radius-sm)',
-                            border: isCurrent
-                              ? '1px solid var(--border-strong)'
-                              : '1px solid transparent',
+                            padding: '6px 9px',
+                            borderRadius: '6px',
+                            border: 'none',
                             backgroundColor: isCurrent
                               ? 'var(--surface-primary)'
                               : 'transparent',
-                            color: isCurrent ? 'var(--ink-primary)' : 'var(--ink-body)',
+                            color: isCurrent ? 'var(--ink-primary)' : 'var(--ink-muted)',
                             fontWeight: isCurrent ? 600 : 400,
-                            fontSize: '0.8rem',
+                            fontSize: '0.78rem',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -258,20 +343,27 @@ export function Sidebar({
                               whiteSpace: 'nowrap',
                             }}
                           >
-                            <strong className="tabular-mono" style={{ fontSize: '0.74rem' }}>
+                            <strong className="tabular-mono" style={{ fontSize: '0.72rem' }}>
                               {ch.numberLabel}:
                             </strong>{' '}
                             {ch.title}
                           </span>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              flexShrink: 0,
+                            }}
+                          >
                             {isBookmarked && (
                               <span style={{ color: 'var(--pastel-amber-text)' }}>
-                                <IconBookmark size={12} />
+                                <IconBookmark size={11} />
                               </span>
                             )}
                             {isDone && (
                               <span style={{ color: 'var(--pastel-green-text)' }}>
-                                <IconCheck size={13} />
+                                <IconCheck size={12} />
                               </span>
                             )}
                           </span>
@@ -284,6 +376,42 @@ export function Sidebar({
             );
           })}
         </nav>
+
+        {/* Bottom Footer: Night Mode Toggle & Mastery Summary */}
+        <div
+          style={{
+            padding: '12px 14px',
+            borderTop: '1px solid var(--border-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <span className="tabular-mono" style={{ fontSize: '0.74rem', color: 'var(--ink-muted)' }}>
+            {completedCount}/{totalChapters} Lessons Done
+          </span>
+
+          <button
+            type="button"
+            className="btn-icon-pill"
+            onClick={onToggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to Studio Light mode' : 'Switch to Night mode'}
+            data-testid="toggle-theme-btn"
+          >
+            {theme === 'dark' ? (
+              <>
+                <IconSun size={13} />
+                <span>Light</span>
+              </>
+            ) : (
+              <>
+                <IconMoon size={13} />
+                <span>Night</span>
+              </>
+            )}
+          </button>
+        </div>
       </aside>
     </>
   );

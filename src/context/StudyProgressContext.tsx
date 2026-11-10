@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import type { QuizAttempt, UserStudyState } from '@/types/course';
+import type { QuizAttempt, ThemeMode, UserStudyState } from '@/types/course';
 
 const STORAGE_KEY = 'unitar_sem3_study_state_v1';
 
@@ -23,6 +23,8 @@ const INITIAL_STATE: UserStudyState = {
   quizHistory: [],
   cramModeEnabled: false,
   highlightKeywordsEnabled: true,
+  lastVisitedChapterId: 'cso-ch1',
+  theme: 'light',
 };
 
 interface StudyProgressContextValue {
@@ -36,6 +38,9 @@ interface StudyProgressContextValue {
   readonly recordQuizAttempt: (attempt: Omit<QuizAttempt, 'id' | 'completedAt'>) => void;
   readonly toggleCramMode: () => void;
   readonly toggleHighlightKeywords: () => void;
+  readonly setLastVisitedChapter: (chapterId: string) => void;
+  readonly toggleTheme: () => void;
+  readonly setTheme: (theme: ThemeMode) => void;
   readonly exportStateJson: () => string;
   readonly importStateJson: (rawJson: string) => { readonly ok: boolean; readonly error?: string };
   readonly resetProgress: () => void;
@@ -114,6 +119,14 @@ function sanitizeLoadedState(parsed: unknown): UserStudyState {
       typeof candidate.highlightKeywordsEnabled === 'boolean'
         ? candidate.highlightKeywordsEnabled
         : INITIAL_STATE.highlightKeywordsEnabled,
+    lastVisitedChapterId:
+      typeof candidate.lastVisitedChapterId === 'string'
+        ? candidate.lastVisitedChapterId
+        : INITIAL_STATE.lastVisitedChapterId,
+    theme:
+      candidate.theme === 'dark' || candidate.theme === 'light'
+        ? candidate.theme
+        : INITIAL_STATE.theme,
   };
 }
 
@@ -134,6 +147,12 @@ export function StudyProgressProvider({ children }: { readonly children: React.R
       setIsHydrated(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', state.theme);
+    }
+  }, [state.theme]);
 
   useEffect(() => {
     if (!isHydrated || typeof window === 'undefined') return;
@@ -232,6 +251,24 @@ export function StudyProgressProvider({ children }: { readonly children: React.R
     }));
   }, []);
 
+  const setLastVisitedChapter = useCallback((chapterId: string) => {
+    setState((prev) => {
+      if (prev.lastVisitedChapterId === chapterId) return prev;
+      return { ...prev, lastVisitedChapterId: chapterId };
+    });
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      theme: prev.theme === 'light' ? 'dark' : 'light',
+    }));
+  }, []);
+
+  const setTheme = useCallback((theme: ThemeMode) => {
+    setState((prev) => ({ ...prev, theme }));
+  }, []);
+
   const exportStateJson = useCallback(() => {
     return JSON.stringify(state, null, 2);
   }, [state]);
@@ -272,6 +309,9 @@ export function StudyProgressProvider({ children }: { readonly children: React.R
       recordQuizAttempt,
       toggleCramMode,
       toggleHighlightKeywords,
+      setLastVisitedChapter,
+      toggleTheme,
+      setTheme,
       exportStateJson,
       importStateJson,
       resetProgress,
@@ -287,6 +327,9 @@ export function StudyProgressProvider({ children }: { readonly children: React.R
       recordQuizAttempt,
       toggleCramMode,
       toggleHighlightKeywords,
+      setLastVisitedChapter,
+      toggleTheme,
+      setTheme,
       exportStateJson,
       importStateJson,
       resetProgress,

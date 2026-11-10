@@ -2,6 +2,10 @@ export type SubjectId = 'business' | 'cso' | 'database' | 'english' | 'maths';
 
 export type PastelTheme = 'amber' | 'blue' | 'green' | 'red' | 'lavender';
 
+export type TurboLessonTab = 'notes' | 'flashcards' | 'quiz' | 'toolkit';
+
+export type ThemeMode = 'light' | 'dark';
+
 export interface KeywordPattern {
   readonly id: string;
   readonly keyword: string;
@@ -125,4 +129,6 @@ export interface UserStudyState {
   readonly quizHistory: readonly QuizAttempt[];
   readonly cramModeEnabled: boolean;
   readonly highlightKeywordsEnabled: boolean;
+  readonly lastVisitedChapterId: string | null;
+  readonly theme: ThemeMode;
 }

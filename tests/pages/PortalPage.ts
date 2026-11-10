@@ -7,6 +7,7 @@ export class PortalPage {
   readonly openSearchBtn: Locator;
   readonly toggleKeywordsBtn: Locator;
   readonly toggleCramBtn: Locator;
+  readonly toggleThemeBtn: Locator;
   readonly commandPaletteModal: Locator;
   readonly commandPaletteInput: Locator;
 
@@ -17,6 +18,7 @@ export class PortalPage {
     this.openSearchBtn = page.getByTestId('open-search-btn');
     this.toggleKeywordsBtn = page.getByTestId('toggle-keywords-btn');
     this.toggleCramBtn = page.getByTestId('toggle-cram-btn');
+    this.toggleThemeBtn = page.getByTestId('toggle-theme-btn');
     this.commandPaletteModal = page.getByTestId('command-palette-modal');
     this.commandPaletteInput = page.getByTestId('command-palette-input');
   }
@@ -31,8 +33,15 @@ export class PortalPage {
     await this.page.getByTestId(`subject-hub-${subjectId}`).waitFor({ state: 'visible' });
   }
 
-  async selectChapterFromSidebar(chapterId: string) {
-    await this.page.getByTestId(`nav-chapter-${chapterId}`).click();
+  async selectChapterFromSidebar(
+    subjectId: 'business' | 'cso' | 'database' | 'english' | 'maths',
+    chapterId: string
+  ) {
+    const chapterBtn = this.page.getByTestId(`nav-chapter-${chapterId}`);
+    if (!(await chapterBtn.isVisible())) {
+      await this.page.getByTestId(`nav-subject-${subjectId}`).click();
+    }
+    await chapterBtn.click();
     await this.page.getByTestId('chapter-view').waitFor({ state: 'visible' });
   }
 }

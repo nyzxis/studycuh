@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { SubjectId } from '@/types/course';
+import type { SubjectId, TurboLessonTab } from '@/types/course';
 import { ALL_SUBJECTS, SUBJECT_MAP, CHAPTER_LOOKUP } from '@/data/courseIndex';
 import { StudyProgressProvider, useStudyProgress } from '@/context/StudyProgressContext';
 import { Sidebar } from '@/components/Sidebar';
@@ -23,12 +23,16 @@ function PortalWorkspace() {
     recordQuizAttempt,
     toggleCramMode,
     toggleHighlightKeywords,
+    setLastVisitedChapter,
+    toggleTheme,
     exportStateJson,
     importStateJson,
   } = useStudyProgress();
 
   const [activeSubjectId, setActiveSubjectId] = useState<SubjectId | null>(null);
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
+  const [activeLessonTab, setActiveLessonTab] = useState<TurboLessonTab>('notes');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -54,13 +58,18 @@ function PortalWorkspace() {
     }
   }, []);
 
-  const handleSelectChapter = useCallback((subjectId: SubjectId, chapterId: string) => {
-    setActiveSubjectId(subjectId);
-    setActiveChapterId(chapterId);
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, []);
+  const handleSelectChapter = useCallback(
+    (subjectId: SubjectId, chapterId: string, initialTab: TurboLessonTab = 'notes') => {
+      setActiveSubjectId(subjectId);
+      setActiveChapterId(chapterId);
+      setActiveLessonTab(initialTab);
+      setLastVisitedChapter(chapterId);
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    [setLastVisitedChapter]
+  );
 
   // Global keyboard shortcuts: Ctrl+K / Cmd+K for search, 'c' (outside inputs) for Cram Mode
   useEffect(() => {
@@ -93,15 +102,18 @@ function PortalWorkspace() {
   }, [searchOpen, toggleCramMode]);
 
   return (
-    <div className="portal-layout">
+    <div className={`portal-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <Sidebar
         subjects={ALL_SUBJECTS}
         activeSubjectId={activeSubjectId}
         activeChapterId={activeChapterId}
         completedChapters={state.completedChapters}
         bookmarkedChapters={state.bookmarkedChapters}
+        theme={state.theme}
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
+        onOpenSearch={() => setSearchOpen(true)}
+        onToggleTheme={toggleTheme}
         onSelectDashboard={handleSelectDashboard}
         onSelectSubject={handleSelectSubject}
         onSelectChapter={handleSelectChapter}
@@ -111,15 +123,19 @@ function PortalWorkspace() {
         <TopHeader
           activeSubject={activeSubject}
           activeChapter={activeChapter}
+          activeLessonTab={activeLessonTab}
           cramModeEnabled={state.cramModeEnabled}
           highlightKeywordsEnabled={state.highlightKeywordsEnabled}
+          sidebarCollapsed={sidebarCollapsed}
           isChapterCompleted={
             activeChapter ? state.completedChapters.includes(activeChapter.id) : false
           }
           isChapterBookmarked={
             activeChapter ? state.bookmarkedChapters.includes(activeChapter.id) : false
           }
+          onChangeLessonTab={setActiveLessonTab}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
+          onToggleSidebarCollapse={() => setSidebarCollapsed((prev) => !prev)}
           onOpenSearch={() => setSearchOpen(true)}
           onToggleCramMode={toggleCramMode}
           onToggleHighlightKeywords={toggleHighlightKeywords}
@@ -146,14 +162,18 @@ function PortalWorkspace() {
               key={activeChapter.id}
               subject={activeSubject}
               chapter={activeChapter}
+              activeTab={activeLessonTab}
+              onChangeTab={setActiveLessonTab}
               highlightKeywordsEnabled={state.highlightKeywordsEnabled}
               cramModeEnabled={state.cramModeEnabled}
+              isChapterCompleted={state.completedChapters.includes(activeChapter.id)}
               masteredFlashcards={state.masteredFlashcards}
               reviewAgainFlashcards={state.reviewAgainFlashcards}
               personalNote={state.chapterNotes[activeChapter.id] ?? ''}
               onMarkFlashcard={markFlashcard}
               onUpdatePersonalNote={(note) => updateChapterNote(activeChapter.id, note)}
               onCompleteQuiz={recordQuizAttempt}
+              onToggleCompleted={() => toggleChapterCompleted(activeChapter.id)}
               onSelectChapter={handleSelectChapter}
             />
           ) : (
@@ -177,7 +197,7 @@ function PortalWorkspace() {
         isOpen={searchOpen}
         subjects={ALL_SUBJECTS}
         onClose={() => setSearchOpen(false)}
-        onSelectChapter={handleSelectChapter}
+        onSelectChapter={(subjId, chapId) => handleSelectChapter(subjId, chapId, 'notes')}
       />
     </div>
   );
